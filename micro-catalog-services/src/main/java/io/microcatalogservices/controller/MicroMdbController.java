@@ -1,19 +1,30 @@
 package io.microcatalogservices.controller;
 
 import io.microcatalogservices.model.CatalogItem;
+import io.microcatalogservices.model.ItemInfo;
+import io.microcatalogservices.model.UserRating;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/catalog")
 public class MicroMdbController {
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-        return Collections.singletonList(new CatalogItem("Transformer", "Desc", 4));
+        UserRating userRating = restTemplate.getForObject("http://localhost:8083/rating/user/"+userId, UserRating.class);
+        return userRating.getRatingList().stream().map(rating -> {
+            ItemInfo itemInfo = restTemplate.getForObject("http://localhost:8082/item/"+rating.getItemId(), ItemInfo.class);
+            return new CatalogItem(itemInfo.getName(), "Description", rating.getRating());
+        }).collect(Collectors.toList());
     }
 }
