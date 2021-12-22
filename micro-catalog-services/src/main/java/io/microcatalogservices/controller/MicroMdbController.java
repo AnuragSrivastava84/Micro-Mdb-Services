@@ -21,9 +21,9 @@ public class MicroMdbController {
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-        UserRating userRating = restTemplate.getForObject("http://localhost:8083/rating/user/"+userId, UserRating.class);
+        UserRating userRating = restTemplate.getForObject("http://micro-rating-service/rating/user/"+userId, UserRating.class);
         return userRating.getRatingList().stream().map(rating -> {
-            ItemInfo itemInfo = restTemplate.getForObject("http://localhost:8082/item/"+rating.getItemId(), ItemInfo.class);
+            ItemInfo itemInfo = restTemplate.getForObject("http://micro-info-service/item/"+rating.getItemId(), ItemInfo.class);
             return new CatalogItem(itemInfo.getName(), "Description", rating.getRating());
         }).collect(Collectors.toList());
     }
