@@ -4,3 +4,15 @@ server:
 spring:
   application:
     name: micro-catalog-service
+
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+hystrix:
+  dashboard:
+    proxy-stream-allow-list: '*'
